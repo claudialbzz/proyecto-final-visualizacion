@@ -24,8 +24,8 @@ def load_data():
     """
     try:
         # Cargar ambos archivos CSV
-        url_parte_1 = 'https://drive.google.com/file/d/13cpsVY8LzuJIN_sxahrZB5xLoRPBWG8_/view?usp=sharing'
-        url_parte_2 = 'https://drive.google.com/file/d/1T2OYUFTQ1u8ztamrYimw0NVrwpS9joYE/view?usp=sharing'
+        url_parte_1 = "https://drive.google.com/uc?id=13cpsVY8LzuJIN_sxahrZB5xLoRPBWG8_"
+        url_parte_2 = "https://drive.google.com/uc?id=1T2OYUFTQ1u8ztamrYimw0NVrwpS9joYE"
         df1 = pd.read_csv(url_parte_1)
         df2 = pd.read_csv(url_parte_2)
         
