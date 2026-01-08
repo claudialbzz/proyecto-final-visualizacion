@@ -17,34 +17,38 @@ st.set_page_config(
 
 # Función para cargar los datos
 @st.cache_data
+@st.cache_data
 def load_data():
-    """
-    Carga y combina los dos datasets proporcionados (parte_1.csv y parte_2.csv).
-    Se utiliza caché para mejorar el rendimiento al recargar la aplicación.
-    """
     try:
-        # Cargar ambos archivos CSV
         url_parte_1 = "https://drive.google.com/uc?id=13cpsVY8LzuJIN_sxahrZB5xLoRPBWG8_"
         url_parte_2 = "https://drive.google.com/uc?id=1T2OYUFTQ1u8ztamrYimw0NVrwpS9joYE"
+
         df1 = pd.read_csv(url_parte_1)
         df2 = pd.read_csv(url_parte_2)
-        
-        # Combinar los datasets
+
         df = pd.concat([df1, df2], ignore_index=True)
-        
-        # Convertir la columna 'date' a datetime
-        df['date'] = pd.to_datetime(dict(year=df['year'], month=df['month'], day=df['day']))
-        
-        # Asegurar que las columnas numéricas tengan el tipo correcto
+
+        # ELIMINAR LA COLUMNA VACÍA "Unnamed: 0"
+        if 'Unnamed: 0' in df.columns:
+            df = df.drop(columns=['Unnamed: 0'])
+
+        # Asegurar nombres limpios
+        df.columns = df.columns.str.strip().str.lower()
+
+        # Convertir date (YA EXISTE)
+        df['date'] = pd.to_datetime(df['date'])
+
+        # Columnas numéricas
         numeric_cols = ['sales', 'onpromotion', 'transactions', 'dcoilwtico']
         for col in numeric_cols:
-            if col in df.columns:
-                df[col] = pd.to_numeric(df[col], errors='coerce')
-        
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+
         return df
+
     except Exception as e:
         st.error(f"Error al cargar los datos: {e}")
         return pd.DataFrame()
+
 
 # Cargar los datos
 df = load_data()
