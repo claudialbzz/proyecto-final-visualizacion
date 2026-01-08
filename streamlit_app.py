@@ -40,10 +40,6 @@ def load_data():
         df1 = pd.read_csv('parte_1_muestra.csv')
         df2 = pd.read_csv('parte_2_muestra.csv')
         
-        # Mostrar información de las columnas para debug
-        st.sidebar.write("✅ Columnas en df1:", list(df1.columns))
-        st.sidebar.write("✅ Columnas en df2:", list(df2.columns))
-
         df = pd.concat([df1, df2], ignore_index=True)
 
         # ELIMINAR LA COLUMNA VACÍA "Unnamed: 0" si existe
@@ -52,17 +48,12 @@ def load_data():
         
         # Limpiar nombres de columnas (convertir a minúsculas y quitar espacios)
         df.columns = df.columns.str.strip().str.lower()
-        
-        # Mostrar columnas después de limpiar
-        st.sidebar.write("📊 Columnas después de limpiar:", list(df.columns))
 
         # Verificar si la columna 'date' existe
         if 'date' not in df.columns:
-            st.sidebar.warning(f"La columna 'date' no existe. Columnas disponibles: {list(df.columns)}")
             # Buscar columnas similares
             date_cols = [col for col in df.columns if 'date' in col.lower() or 'fecha' in col.lower()]
             if date_cols:
-                st.sidebar.info(f"Columnas que podrían contener fechas: {date_cols}")
                 # Usar la primera columna que parezca ser de fecha
                 df.rename(columns={date_cols[0]: 'date'}, inplace=True)
             else:
@@ -94,10 +85,7 @@ def load_data():
             else:
                 st.sidebar.warning(f"Advertencia: La columna '{col}' no existe en los datos")
 
-        # Verificar datos cargados
         st.sidebar.success(f"✅ Datos cargados exitosamente: {len(df)} registros")
-        st.sidebar.info(f"📅 Rango de fechas: {df['date'].min().date()} a {df['date'].max().date()}")
-        
         return df
 
     except FileNotFoundError as e:
