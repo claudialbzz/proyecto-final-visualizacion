@@ -17,7 +17,6 @@ st.set_page_config(
 
 # Función para cargar los datos
 @st.cache_data
-@st.cache_data
 def load_data():
     try:
         url_parte_1 = "https://drive.google.com/uc?id=13cpsVY8LzuJIN_sxahrZB5xLoRPBWG8_"
@@ -25,30 +24,65 @@ def load_data():
 
         df1 = pd.read_csv(url_parte_1)
         df2 = pd.read_csv(url_parte_2)
+        
+        # Mostrar información de las columnas para debug
+        st.sidebar.write("Columnas en df1:", list(df1.columns))
+        st.sidebar.write("Columnas en df2:", list(df2.columns))
 
         df = pd.concat([df1, df2], ignore_index=True)
 
-        # ELIMINAR LA COLUMNA VACÍA "Unnamed: 0"
+        # ELIMINAR LA COLUMNA VACÍA "Unnamed: 0" si existe
         if 'Unnamed: 0' in df.columns:
             df = df.drop(columns=['Unnamed: 0'])
-
-        # Asegurar nombres limpios
+        
+        # Limpiar nombres de columnas (convertir a minúsculas y quitar espacios)
         df.columns = df.columns.str.strip().str.lower()
+        
+        # Mostrar columnas después de limpiar
+        st.sidebar.write("Columnas después de limpiar:", list(df.columns))
 
-        # Convertir date (YA EXISTE)
-        df['date'] = pd.to_datetime(df['date'])
+        # Verificar si la columna 'date' existe
+        if 'date' not in df.columns:
+            st.error(f"La columna 'date' no existe. Columnas disponibles: {list(df.columns)}")
+            # Buscar columnas similares
+            date_cols = [col for col in df.columns if 'date' in col.lower() or 'fecha' in col.lower()]
+            if date_cols:
+                st.info(f"Columnas que podrían contener fechas: {date_cols}")
+                # Usar la primera columna que parezca ser de fecha
+                df.rename(columns={date_cols[0]: 'date'}, inplace=True)
+            else:
+                return pd.DataFrame()
+
+        # Convertir date a datetime
+        df['date'] = pd.to_datetime(df['date'], errors='coerce')
+        
+        # Crear columnas de fecha si no existen
+        if 'year' not in df.columns:
+            df['year'] = df['date'].dt.year
+        if 'month' not in df.columns:
+            df['month'] = df['date'].dt.month
+        if 'week' not in df.columns:
+            df['week'] = df['date'].dt.isocalendar().week
+        if 'quarter' not in df.columns:
+            df['quarter'] = df['date'].dt.quarter
+        if 'day_of_week' not in df.columns:
+            df['day_of_week'] = df['date'].dt.day_name()
 
         # Columnas numéricas
         numeric_cols = ['sales', 'onpromotion', 'transactions', 'dcoilwtico']
         for col in numeric_cols:
-            df[col] = pd.to_numeric(df[col], errors='coerce')
+            if col in df.columns:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
+            else:
+                st.warning(f"Advertencia: La columna '{col}' no existe en los datos")
 
         return df
 
     except Exception as e:
         st.error(f"Error al cargar los datos: {e}")
+        import traceback
+        st.error(traceback.format_exc())
         return pd.DataFrame()
-
 
 # Cargar los datos
 df = load_data()
@@ -56,6 +90,14 @@ df = load_data()
 # Verificar que los datos se cargaron correctamente
 if df.empty:
     st.error("No se pudieron cargar los datos. Por favor, verifica los archivos CSV.")
+    
+    # Mostrar información de ayuda
+    st.info("""
+    **Solución de problemas:**
+    1. Verifica que los archivos CSV tengan la columna 'date' o similar
+    2. Asegúrate de que las URLs de Google Drive sean correctas
+    3. Revisa que los archivos tengan el formato esperado
+    """)
     st.stop()
 
 # ===========================================
@@ -73,10 +115,14 @@ pagina_seleccionada = st.sidebar.radio(
 st.sidebar.markdown("---")
 st.sidebar.header("📈 Información del Dataset")
 st.sidebar.write(f"**Registros totales:** {len(df):,}")
-st.sidebar.write(f"**Período de datos:** {df['date'].min().date()} al {df['date'].max().date()}")
-st.sidebar.write(f"**Tiendas únicas:** {df['store_nbr'].nunique()}")
-st.sidebar.write(f"**Estados únicos:** {df['state'].nunique()}")
-st.sidebar.write(f"**Familias de producto:** {df['family'].nunique()}")
+if 'date' in df.columns and not df['date'].isna().all():
+    st.sidebar.write(f"**Período de datos:** {df['date'].min().date()} al {df['date'].max().date()}")
+if 'store_nbr' in df.columns:
+    st.sidebar.write(f"**Tiendas únicas:** {df['store_nbr'].nunique()}")
+if 'state' in df.columns:
+    st.sidebar.write(f"**Estados únicos:** {df['state'].nunique()}")
+if 'family' in df.columns:
+    st.sidebar.write(f"**Familias de producto:** {df['family'].nunique()}")
 
 # ===========================================
 # PÁGINA 1: VISIÓN GLOBAL
