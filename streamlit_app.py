@@ -19,11 +19,9 @@ st.set_page_config(
 @st.cache_data
 def load_data():
     try:
-        url_parte_1 = "https://drive.google.com/uc?id=13cpsVY8LzuJIN_sxahrZB5xLoRPBWG8_"
-        url_parte_2 = "https://drive.google.com/uc?id=1T2OYUFTQ1u8ztamrYimw0NVrwpS9joYE"
-
-        df1 = pd.read_csv(url_parte_1)
-        df2 = pd.read_csv(url_parte_2)
+        
+        df1 = pd.read_csv('parte_1_muestra')
+        df2 = pd.read_csv('parte_2_muestra')
         
         # Mostrar información de las columnas para debug
         st.sidebar.write("Columnas en df1:", list(df1.columns))
