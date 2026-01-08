@@ -33,7 +33,7 @@ def load_data():
         df = pd.concat([df1, df2], ignore_index=True)
         
         # Convertir la columna 'date' a datetime
-        df['date'] = pd.to_datetime(df['date'])
+        df['date'] = pd.to_datetime(dict(year=df['year'], month=df['month'], day=df['day']))
         
         # Asegurar que las columnas numéricas tengan el tipo correcto
         numeric_cols = ['sales', 'onpromotion', 'transactions', 'dcoilwtico']
