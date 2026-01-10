@@ -20,7 +20,7 @@ st.sidebar.markdown("---")
 st.sidebar.warning("""
 **⚠️ DISCLAIMER - DATOS DE MUESTRA**
 
-Este dashboard utiliza una **muestra de registros** para demostración.
+Este dashboard utiliza una **muestra de registros** escogidos de manera aleatoria para demostración.
 
 **Valores reales aproximados:**
 - Registros totales: ~2,000,000
